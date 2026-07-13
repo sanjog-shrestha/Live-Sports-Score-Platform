@@ -8,6 +8,7 @@ RUN go build -o server .
 # ---- Run stage ----
 FROM alpine:3.19 
 WORKDIR /app 
+ENV PORT=8080
 COPY --from=build /app/server . 
 COPY data.json .
 EXPOSE 8080
