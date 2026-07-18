@@ -1,23 +1,92 @@
 [
  {
-  "id": "1",
-  "home": "Riverside FC",
-  "away": "Harbor United",
+  "id": "537385",
+  "home": "Norway",
+  "away": "England",
   "homeScore": 1,
-  "awayScore": 0
+  "awayScore": 2,
+  "status": "FINISHED",
+  "date": "Jul 11, 2026 21:00 UTC",
+  "competition": "FIFA World Cup"
  },
  {
-  "id": "2",
-  "home": "Summit Athletic",
-  "away": "Ironclad City",
-  "homeScore": 2,
-  "awayScore": 2
+  "id": "537386",
+  "home": "Argentina",
+  "away": "Switzerland",
+  "homeScore": 3,
+  "awayScore": 1,
+  "status": "FINISHED",
+  "date": "Jul 12, 2026 01:00 UTC",
+  "competition": "FIFA World Cup"
  },
  {
-  "id": "3",
-  "home": "Northgate",
-  "away": "Eastview",
+  "id": "537387",
+  "home": "France",
+  "away": "Spain",
   "homeScore": 0,
-  "awayScore": 0
+  "awayScore": 2,
+  "status": "FINISHED",
+  "date": "Jul 14, 2026 19:00 UTC",
+  "competition": "FIFA World Cup"
+ },
+ {
+  "id": "537388",
+  "home": "England",
+  "away": "Argentina",
+  "homeScore": 1,
+  "awayScore": 2,
+  "status": "FINISHED",
+  "date": "Jul 15, 2026 19:00 UTC",
+  "competition": "FIFA World Cup"
+ },
+ {
+  "id": "554921",
+  "home": "Botafogo FR",
+  "away": "Santos FC",
+  "homeScore": 2,
+  "awayScore": 1,
+  "status": "FINISHED",
+  "date": "Jul 16, 2026 22:30 UTC",
+  "competition": "Campeonato Brasileiro Série A"
+ },
+ {
+  "id": "554929",
+  "home": "EC Vitória",
+  "away": "CR Vasco da Gama",
+  "homeScore": 1,
+  "awayScore": 0,
+  "status": "FINISHED",
+  "date": "Jul 16, 2026 22:30 UTC",
+  "competition": "Campeonato Brasileiro Série A"
+ },
+ {
+  "id": "554770",
+  "home": "EC Bahia",
+  "away": "Chapecoense AF",
+  "homeScore": 2,
+  "awayScore": 0,
+  "status": "FINISHED",
+  "date": "Jul 17, 2026 22:30 UTC",
+  "competition": "Campeonato Brasileiro Série A"
+ },
+ {
+  "id": "554927",
+  "home": "Mirassol FC",
+  "away": "Grêmio FBPA",
+  "homeScore": 2,
+  "awayScore": 1,
+  "status": "FINISHED",
+  "date": "Jul 17, 2026 23:00 UTC",
+  "competition": "Campeonato Brasileiro Série A"
+ },
+ {
+  "id": "554925",
+  "home": "Fluminense FC",
+  "away": "RB Bragantino",
+  "homeScore": 1,
+  "awayScore": 1,
+  "status": "FINISHED",
+  "date": "Jul 17, 2026 23:00 UTC",
+  "competition": "Campeonato Brasileiro Série A"
  }
 ]

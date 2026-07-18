@@ -1,17 +1,25 @@
 services:
   app:
     build: .
+    container_name: app
     ports:
       - "8080:8080"
     environment:
       - PORT=8080
       - REDIS_ADDR=redis:6379
+      - FOOTBALL_DATA_TOKEN=${FOOTBALL_DATA_TOKEN}
+      - STANDINGS_COMPETITION=PL
+      - STANDINGS_SEASON=${STANDINGS_SEASON}
+      - BALLDONTLIE_API_KEY=${BALLDONTLIE_API_KEY}
+      - API_FOOTBALL_KEY=${API_FOOTBALL_KEY}
     volumes:
       - ./data.json:/app/data.json
+      - ./goals.db:/app/goals.db
     depends_on:
       - redis
 
   redis:
     image: redis:7-alpine
+    container_name: redis
     ports:
       - "6379:6379"

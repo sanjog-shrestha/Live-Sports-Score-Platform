@@ -1,0 +1,257 @@
+:root {
+    --pitch-dark: #14532d;
+    --pitch: #1f7a43;
+    --pitch-light: #e8f5ec;
+    --gold: #f2b805;
+    --card-bg: #ffffff;
+    --text: #14201a;
+    --text-muted: #6b7a71;
+    --border: #dfe8e2;
+    --live: #dc2626;
+    --scheduled: #2563eb;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: "Seoge UI", system-ui, -apple-system, sans-serif;
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 0 16px 48px;
+    background: var(--pitch-light);
+    color: var(--text);
+}
+
+header.topbar {
+    background: linear-gradient(135deg, var(--pitch-dark), var(--pitch));
+    color: #fff;
+    margin: 0 -16px 20px;
+    padding: 24px 16px;
+    border-bottom: 4px solid var(--gold);
+}
+
+
+header.topbar .h1 {
+    margin: 0;
+    font-size: 26px;
+    letter-spacing: 0.5px;
+}
+
+header.topbar tagline {
+    margin: 0;
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+#status {
+    display: inline-block;
+    margin-top: 10px;
+    padding: 3px 10px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.15);
+    font-size: 12px;
+}
+
+#searchInput {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 8px 10px;
+    margin: 12px 0;
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    font-size: 14px;
+    background: #fff;
+}
+
+#searchInput:focus {
+    outline: none;
+    border-color: var(--pitch);
+    box-shadow: 0 0 0 3px rgba(31, 122, 67, 0, 15);
+}
+
+h2 {
+    color: var(--pitch-dark);
+    font-size: 18px;
+    margin: 28px 0 10px;
+}
+
+.match {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 16px;
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    box-shadow: 0 1px 2px rgba(20, 32, 26, 0.06);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.match:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(20, 32, 26, 0.12);
+}
+
+.match-main {
+    flex: 1;
+    min-width: 0;
+}
+
+.competition {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    color: var(--pitch);
+    margin-bottom: 4px;
+}
+
+.teams-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 15px;
+    font-weight: 600;
+    flex-wrap: wrap;
+}
+
+.team-name {
+    color: var(--text);
+}
+
+.score-pill {
+    background: var(--pitch-dark);
+    color: #fff;
+    font-family: "Courier New", monospace;
+    font-weight: 700;
+    font-size: 14px;
+    padding: 3px 10px;
+    border-radius: 6px;
+    letter-spacing: 1px;
+}
+
+.status {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 4px;
+}
+
+.badge {
+    font-size: 11px;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 12px;
+    white-space: nowrap;
+    margin-left: 12px;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.badge-live {
+    background: #fee2e2;
+    color: var(--live);
+}
+
+.badge-live::before {
+    content: "";
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--live);
+    animation: pulse 1.4s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+    50% {
+        opacity: 0.4;
+        transform: scale(1.4);
+    }
+
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.badge-finished {
+    background: #f1f3f2;
+    color: var(--text-muted);
+}
+
+.badge-scheduled {
+    background: #dbeafe;
+    color: var(--scheduled);
+}
+
+.empty {
+    color: var(--text-muted);
+    font-size: 13px;
+    padding: 16px 4px;
+}
+
+.goals-panel {
+    background: var(--pitch-light);
+    border: 1px solid var(--border);
+    border-top: none;
+    border-radius: 0 0 12px 12px;
+    margin: -10px 0 10px;
+    padding: 10px 16px 14px;
+    font-size: 13px;
+}
+
+.goal-list {
+    list-style: none;
+    margin: 4px 0 0;
+    padding: 0;
+}
+
+.goal-list li {
+    padding: 3px 0;
+}
+
+.goal-list li::before {
+    content: "⚽ ";
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--card-bg);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 1px 2px rgba(20, 32, 26, 0.06);
+}
+
+thead tr {
+    background: var(--pitch-dark);
+    color: #fff;
+}
+
+th,
+td {
+    text-align: left;
+    padding: 8px 10px;
+    font-size: 13px;
+}
+
+tbody tr:nth-child(even) {
+    background: var(--pitch-light);
+}
+
+tbody tr:hover {
+    background: #dfeee3;
+}
+
+td {
+    border-bottom: 1px solid var(--border);
+}
