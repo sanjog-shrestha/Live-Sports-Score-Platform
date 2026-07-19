@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"log"
 	"net/http"
@@ -46,7 +47,7 @@ func fetchNBAGames(token string) error {
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		log.Printf("ballsdontlie.io returned status %d", resp.StatusCode)
+		log.Printf("balldontlie.io returned status %d", resp.StatusCode)
 		return nil
 	}
 
@@ -69,18 +70,25 @@ func fetchNBAGames(token string) error {
 		})
 	}
 
-	log.Printf("fetched %d NBA game(s) from ballsdontlie.io", len(fresh))
+	log.Printf("fetched %d NBA game(s) from balldontlie.io", len(fresh))
 
 	nbaScores = fresh
 	mergeScores()
 	return nil
 }
 
-func startNBALoop(token string, interval time.Duration) {
+func startNBALoop(ctx context.Context, token string, interval time.Duration) {
 	ticker := time.NewTicker(interval)
-	for range ticker.C {
-		if err := fetchNBAGames(token); err != nil {
-			log.Printf("warning: NBA fetch failed: %v", err)
+	defer ticker.Stop()
+	for {
+		select {
+		case <-ctx.Done():
+			log.Println("stopping NBA fetch loop")
+			return
+		case <-ticker.C:
+			if err := fetchNBAGames(token); err != nil {
+				log.Printf("warning: NBA fetch failed: %v", err)
+			}
 		}
 	}
 }

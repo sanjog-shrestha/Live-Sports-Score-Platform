@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -89,11 +90,18 @@ func fetchStandings(token string) error {
 	return nil
 }
 
-func startStandingsLoop(token string, interval time.Duration) {
+func startStandingsLoop(ctx context.Context, token string, interval time.Duration) {
 	ticker := time.NewTicker(interval)
-	for range ticker.C {
-		if err := fetchStandings(token); err != nil {
-			log.Printf("warning: standings fetch failed: %v", err)
+	defer ticker.Stop()
+	for {
+		select {
+		case <-ctx.Done():
+			log.Println("stopping standings fetch loop")
+			return
+		case <-ticker.C:
+			if err := fetchStandings(token); err != nil {
+				log.Printf("warning: standings fetch failed: %v", err)
+			}
 		}
 	}
 }

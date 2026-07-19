@@ -10,11 +10,24 @@
 <body>
     <header class="topbar">
         <h1>⚽ Live Scores</h1>
-        <div class="tagline">Football & basketball, update live</div>
-        <div id="status" class="status">connecting...</div>
+        <div class="tagline">Football & basketball, updated live</div>
+        <div id="status">connecting...</div>
     </header>
 
     <input type="text" id="searchInput" placeholder="Search by team name...">
+    <label class="favorites-toggle">
+        <input type="checkbox" id="favoritesOnly">
+        Show favorites only
+    </label>
+    <div class="favorites-manager">
+        <label for="teamPicker">Add a favorite team (from recent results):</label>
+        <select id="teamPicker">
+            <option value="">Select a team…</option>
+        </select>
+        <button type="button" id="addFavoriteBtn">★ Add</button>
+        <div id="favoritesList" class="favorites-list"></div>
+    </div>
+    <div id="teamPage" class="team-page" style="display: none;"></div>
     <div id="scores"></div>
 
     <h2>Standings</h2>

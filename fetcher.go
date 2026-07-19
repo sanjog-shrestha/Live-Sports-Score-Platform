@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -107,11 +108,18 @@ func intOrZero(p *int) int {
 	return *p
 }
 
-func startFetchLoop(token string, interval time.Duration) {
+func startFetchLoop(ctx context.Context, token string, interval time.Duration) {
 	ticker := time.NewTicker(interval)
-	for range ticker.C {
-		if err := fetchScores(token); err != nil {
-			log.Printf("warning: fetch failed: %v", err)
+	defer ticker.Stop()
+	for {
+		select {
+		case <-ctx.Done():
+			log.Println("stopping football-data.org fetch loop")
+			return
+		case <-ticker.C:
+			if err := fetchScores(token); err != nil {
+				log.Printf("warning: fetch failed: %v", err)
+			}
 		}
 	}
 }
