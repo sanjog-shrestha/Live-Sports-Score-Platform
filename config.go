@@ -41,3 +41,19 @@ func getBalldontlieToken() string {
 func getApiFootballToken() string {
 	return os.Getenv("API_FOOTBALL_KEY")
 }
+
+func getApiFootballLeagueID() string {
+	id := os.Getenv("API_FOOTBALL_LEAGUE_ID")
+	if id == "" {
+		id = "39"
+	}
+	return id
+}
+
+func getApiFootballSeason() string {
+	season := os.Getenv("API_FOOTBALL_SEASON")
+	if season == "" {
+		season = getStandingsSeason()
+	}
+	return season
+}

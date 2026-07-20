@@ -76,12 +76,13 @@ func matchHandler(w http.ResponseWriter, r *http.Request) {
 		if token := getApiFootballToken(); token != "" {
 			goals, err := fetchMatchGoals(token, id)
 			if err != nil {
-				log.Printf("warning: failed to fetch goals for match %s %v", id, err)
+				log.Printf("warning: failed to fetch goals for match %s: %v", id, err)
 			} else {
 				detail.Goals = goals
 			}
 		}
 	}
+
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(detail)
 }
@@ -112,9 +113,49 @@ func addScoreHandler(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(s)
 }
 
+func deleteScoreHandler(w http.ResponseWriter, r *http.Request) {
+	id := r.PathValue("id")
+
+	scoresMu.Lock()
+	filtered := make([]Score, 0, len(scores))
+	found := false
+	for _, s := range scores {
+		if s.ID == id {
+			found = true
+			continue
+		}
+		filtered = append(filtered, s)
+	}
+	scores = filtered
+	err := saveScores(dataFile)
+	scoresMu.Unlock()
+
+	if !found {
+		http.NotFound(w, r)
+		return
+	}
+	if err != nil {
+		log.Printf("warning: failed to persist scores: %v", err)
+	}
+
+	if err := redisClient.Del(context.Background(), scoresCacheKey).Err(); err != nil {
+		log.Printf("warning: failed to invalidate cache: %v", err)
+	}
+
+	hub.broadcast(map[string]interface{}{"event": "scores_refreshed"})
+	w.WriteHeader(http.StatusNoContent)
+}
+
 func standingsHandler(w http.ResponseWriter, r *http.Request) {
 	standingsMu.Lock()
 	defer standingsMu.Unlock()
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(standings)
+}
+
+func topScorersHandler(w http.ResponseWriter, r *http.Request) {
+	topScorersMu.Lock()
+	defer topScorersMu.Unlock()
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(topScorers)
 }

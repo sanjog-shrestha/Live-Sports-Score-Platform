@@ -1,12 +1,14 @@
 const scoresEl = document.getElementById("scores");
 const statusEl = document.getElementById("status");
 const standingsBody = document.getElementById("standingsBody");
+const topScorersBody = document.getElementById("topScorersBody");
 const searchInput = document.getElementById("searchInput");
 const favoritesOnlyCheckbox = document.getElementById("favoritesOnly");
 const teamPicker = document.getElementById("teamPicker");
 const addFavoriteBtn = document.getElementById("addFavoriteBtn");
 const favoritesListEl = document.getElementById("favoritesList");
 const teamPageEl = document.getElementById("teamPage");
+const toastContainer = document.getElementById("toastContainer");
 
 const FAVORITES_KEY = "favoriteTeams";
 
@@ -25,6 +27,7 @@ function saveFavorites(favs) {
 let favorites = loadFavorites();
 let allScores = [];
 let currentStandings = [];
+let previousScoresById = {};
 
 function statusClass(status) {
     if (status === "IN_PLAY" || status === "PAUSED") return "badge-live";
@@ -46,9 +49,9 @@ function matchesFavorites(s) {
     return favorites.has(s.home) || favorites.has(s.away);
 }
 
-function applyFilters() {
+function applyFilters(justScoredIds = new Set()) {
     const filtered = filterScores(allScores, searchInput.value).filter(matchesFavorites);
-    renderScores(filtered);
+    renderScores(filtered, justScoredIds);
 }
 
 function toggleFavorite(teamName) {
@@ -215,7 +218,7 @@ function renderGoals(panel, goals, match) {
     panel.innerHTML = `<div class="empty">${message}</div>`;
 }
 
-function renderScores(scores) {
+function renderScores(scores, justScoredIds = new Set()) {
     scoresEl.innerHTML = "";
     if (scores.length === 0) {
         scoresEl.innerHTML = '<div class="empty">No matches found.</div>';
@@ -230,14 +233,15 @@ function renderScores(scores) {
 
         const comp = document.createElement("div");
         comp.className = "competition";
-        comp.textContent = s.competition || "";
+        const compIcon = s.competition === "NBA" ? "🏀" : "⚽";
+        comp.textContent = s.competition ? `${compIcon} ${s.competition}` : "";
 
         const teamsRow = document.createElement("div");
         teamsRow.className = "teams-row";
 
         const home = teamSpan(s.home);
         const scorePill = document.createElement("span");
-        scorePill.className = "score-pill";
+        scorePill.className = "score-pill" + (justScoredIds.has(s.id) ? " flash" : "");
         scorePill.textContent = `${s.homeScore} – ${s.awayScore}`;
         const away = teamSpan(s.away);
 
@@ -301,13 +305,69 @@ function renderStandings(rows) {
     }
 }
 
+function renderTopScorers(rows) {
+    topScorersBody.innerHTML = "";
+    if (!rows || rows.length === 0) {
+        topScorersBody.innerHTML = '<tr><td colspan="6" class="empty">No player statistics available.</td></tr>';
+        return;
+    }
+    for (const r of rows) {
+        const tr = document.createElement("tr");
+        const cells = [r.rank, r.name, r.team, r.appearances, r.goals, r.assists];
+        for (const val of cells) {
+            const td = document.createElement("td");
+            td.textContent = val;
+            tr.appendChild(td);
+        }
+        topScorersBody.appendChild(tr);
+    }
+}
+
+function showToast(message) {
+    const toast = document.createElement("div");
+    toast.className = "toast";
+    toast.textContent = message;
+    toastContainer.appendChild(toast);
+    setTimeout(() => toast.remove(), 4300);
+}
+
+function detectGoals(newScores) {
+    const justScoredIds = new Set();
+    for (const s of newScores) {
+        const prev = previousScoresById[s.id];
+        if (!prev) continue;
+
+        const homeIncreased = s.homeScore > prev.homeScore;
+        const awayIncreased = s.awayScore > prev.awayScore;
+        if (!homeIncreased && !awayIncreased) continue;
+
+        justScoredIds.add(s.id);
+
+        if (!s.id.startsWith("nba-")) {
+            const scorer = homeIncreased ? s.home : s.away;
+            showToast(`⚽ Goal! ${scorer} — ${s.home} ${s.homeScore} – ${s.awayScore} ${s.away}`);
+        }
+    }
+    return justScoredIds;
+}
+
+function snapshotScores(scoresList) {
+    const snapshot = {};
+    for (const s of scoresList) {
+        snapshot[s.id] = { homeScore: s.homeScore, awayScore: s.awayScore };
+    }
+    return snapshot;
+}
+
 function loadScores() {
     fetch("/api/scores")
         .then(res => res.json())
         .then(data => {
+            const justScoredIds = detectGoals(data);
+            previousScoresById = snapshotScores(data);
             allScores = data;
             renderTeamPicker(buildTeamList(allScores));
-            applyFilters();
+            applyFilters(justScoredIds);
         });
 }
 
@@ -323,12 +383,19 @@ function loadStandings() {
         });
 }
 
+function loadTopScorers() {
+    fetch("/api/players/topscorers")
+        .then(res => res.json())
+        .then(renderTopScorers);
+}
+
 renderFavoritesList();
 loadScores();
 loadStandings();
+loadTopScorers();
 
-searchInput.addEventListener("input", applyFilters);
-favoritesOnlyCheckbox.addEventListener("change", applyFilters);
+searchInput.addEventListener("input", () => applyFilters());
+favoritesOnlyCheckbox.addEventListener("change", () => applyFilters());
 addFavoriteBtn.addEventListener("click", () => {
     const team = teamPicker.value;
     if (!team) return;
@@ -350,5 +417,8 @@ ws.onmessage = (event) => {
     }
     if (msg.event === "standings_updated") {
         loadStandings();
+    }
+    if (msg.event === "top_scorers_updated") {
+        loadTopScorers();
     }
 };

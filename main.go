@@ -46,12 +46,24 @@ func main() {
 		log.Println("BALLDONTLIE_API_KEY not set -- skipping NBA scores")
 	}
 
+	if token := getApiFootballToken(); token != "" {
+		log.Println("API_FOOTBALL_KEY set -- fetching top scorers every 2h")
+		if err := loadTopScorersOnStartup(token); err != nil {
+			log.Printf("warning: initial top scorers fetch failed: %v", err)
+		}
+		go startTopScorersLoop(ctx, token, 2*time.Hour)
+	} else {
+		log.Println("API_FOOTBALL_KEY not set -- skipping player statistics")
+	}
+
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /health", healthHandler)
 	mux.HandleFunc("GET /api/scores", scoresHandler)
 	mux.HandleFunc("GET /api/scores/{id}", matchHandler)
 	mux.HandleFunc("POST /api/scores", addScoreHandler)
+	mux.HandleFunc("DELETE /api/scores/{id}", deleteScoreHandler)
 	mux.HandleFunc("GET /api/standings", standingsHandler)
+	mux.HandleFunc("GET /api/players/topscorers", topScorersHandler)
 	mux.HandleFunc("GET /ws", wsHandler)
 	mux.Handle("/", http.FileServer(http.Dir("static")))
 

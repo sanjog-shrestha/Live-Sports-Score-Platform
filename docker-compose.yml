@@ -12,6 +12,7 @@ services:
       - STANDINGS_SEASON=${STANDINGS_SEASON}
       - BALLDONTLIE_API_KEY=${BALLDONTLIE_API_KEY}
       - API_FOOTBALL_KEY=${API_FOOTBALL_KEY}
+      - API_FOOTBALL_LEAGUE_ID=39
     volumes:
       - ./data.json:/app/data.json
       - ./goals.db:/app/goals.db
