@@ -36,6 +36,23 @@ func initDB(path string) error {
 			cached_at TEXT NOT NULL
 			)
 		`)
+	if err != nil {
+		return err
+	}
+
+	_, err = db.Exec(`
+		CREATE TABLE IF NOT EXISTS match_history(
+			match_id TEXT PRIMARY KEY,
+			home TEXT NOT NULL,
+			away TEXT NOT NULL,
+			home_score INTEGER NOT NULL,
+			away_score INTEGER NOT NULL,
+			status TEXT,
+			competition TEXT,
+			match_date TEXT,
+			updated_at TEXT NOT NULL
+		)
+	`)
 	return err
 }
 

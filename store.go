@@ -10,13 +10,14 @@ import (
 
 var scores []Score
 var scoresMu sync.Mutex
+
 var footballScores []Score
 var nbaScores []Score
 
 func loadScores(path string) error {
 	raw, err := os.ReadFile(path)
 	if os.IsNotExist(err) {
-		log.Printf("%s not found - starting with an empty score list", path)
+		log.Printf("%s not found — starting with an empty score list", path)
 		scores = []Score{}
 		return nil
 	}
@@ -27,7 +28,7 @@ func loadScores(path string) error {
 }
 
 func saveScores(path string) error {
-	data, err := json.MarshalIndent(scores, "", " ")
+	data, err := json.MarshalIndent(scores, "", "  ")
 	if err != nil {
 		return err
 	}
@@ -46,6 +47,8 @@ func mergeScores() {
 	if err != nil {
 		log.Printf("warning: failed to persist merged scores: %v", err)
 	}
+
+	recordMatchHistoryBatch(merged)
 
 	if err := redisClient.Del(context.Background(), scoresCacheKey).Err(); err != nil {
 		log.Printf("warning: failed to invalidate cache: %v", err)
