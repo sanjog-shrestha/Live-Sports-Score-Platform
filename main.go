@@ -27,6 +27,9 @@ func main() {
 
 	if token := getFootballDataToken(); token != "" {
 		log.Println("FOOTBALL_DATA_TOKEN set -- polling football-data.org every 60s")
+		if err := fetchScores(token); err != nil {
+			log.Printf("warning: initial scores fetch failed: %v", err)
+		}
 		go startFetchLoop(ctx, token, 60*time.Second)
 		if err := fetchStandings(token); err != nil {
 			log.Printf("warning: initial standings fetch failed: %v", err)
@@ -64,6 +67,7 @@ func main() {
 	mux.HandleFunc("DELETE /api/scores/{id}", deleteScoreHandler)
 	mux.HandleFunc("GET /api/standings", standingsHandler)
 	mux.HandleFunc("GET /api/history", matchHistoryHandler)
+	mux.HandleFunc("GET /api/history/goals", goalHistoryHandler)
 	mux.HandleFunc("GET /api/players/topscorers", topScorersHandler)
 	mux.HandleFunc("GET /ws", wsHandler)
 	mux.Handle("/", http.FileServer(http.Dir("static")))

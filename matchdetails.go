@@ -134,6 +134,7 @@ func findFixtureID(token, dateISO, home, away string) (int, error) {
 			return 0, fmt.Errorf("date %s not available on free plan: %v", dateISO, planMsg)
 		}
 	}
+
 	for _, f := range out.Response {
 		if sameTeam(f.Teams.Home.Name, home) && sameTeam(f.Teams.Away.Name, away) {
 			return f.Fixture.ID, nil
@@ -208,6 +209,10 @@ func fetchMatchGoals(token, matchId string) ([]Goal, error) {
 		if err := setCachedGoals(matchId, goals); err != nil {
 			log.Printf("warning: failed to persist goals for %s: %v", matchId, err)
 		}
+		if err := recordGoalHistory(matchId, match.Competition, goals); err != nil {
+			log.Printf("warning: failed to record goal history for %s: %v", matchId, err)
+		}
 	}
+
 	return goals, nil
 }

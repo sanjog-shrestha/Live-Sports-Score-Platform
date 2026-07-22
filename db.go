@@ -34,14 +34,14 @@ func initDB(path string) error {
 			cache_key TEXT PRIMARY KEY,
 			stats_json TEXT NOT NULL,
 			cached_at TEXT NOT NULL
-			)
-		`)
+		)
+	`)
 	if err != nil {
 		return err
 	}
 
 	_, err = db.Exec(`
-		CREATE TABLE IF NOT EXISTS match_history(
+		CREATE TABLE IF NOT EXISTS match_history (
 			match_id TEXT PRIMARY KEY,
 			home TEXT NOT NULL,
 			away TEXT NOT NULL,
@@ -51,6 +51,22 @@ func initDB(path string) error {
 			competition TEXT,
 			match_date TEXT,
 			updated_at TEXT NOT NULL
+		)
+	`)
+	if err != nil {
+		return err
+	}
+
+	_, err = db.Exec(`
+		CREATE TABLE IF NOT EXISTS goal_history (
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			match_id TEXT NOT NULL,
+			minute INTEGER,
+			team TEXT,
+			scorer TEXT,
+			competition TEXT,
+			recorded_at TEXT NOT NULL,
+			UNIQUE(match_id, minute, team, scorer)			
 		)
 	`)
 	return err
