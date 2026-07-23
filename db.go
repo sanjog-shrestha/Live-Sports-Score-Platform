@@ -69,6 +69,19 @@ func initDB(path string) error {
 			UNIQUE(match_id, minute, team, scorer)			
 		)
 	`)
+	if err != nil {
+		return err
+	}
+
+	_, err = db.Exec(`
+		CREATE TABLE IF NOT EXISTS standings_snapshots (
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			competition TEXT NOT NULL,
+			season TEXT,
+			standings_json TEXT NOT NULL,
+			recorded_at TEXT NOT NULL
+		)
+	`)
 	return err
 }
 

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"database/sql"
 	"encoding/json"
 	"log"
 	"net/http"
@@ -129,4 +130,93 @@ func goalHistoryHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(history)
+}
+
+type StandingsSnapshotRow struct {
+	Competition string        `json:"competition"`
+	Season      string        `json:"season"`
+	RecordedAt  string        `json:"recordedAt"`
+	Standings   []StandingRow `json:"standings"`
+}
+
+func getLatestStandingsSnapshot(competition, season string) (string, error) {
+	var data string
+	err := db.QueryRow(`
+		SELECT standings_json FROM standings_snapshots
+		WHERE competition = ? AND season = ?
+		ORDER BY recorded_at DESC
+		LIMIT 1 
+	`, competition, season).Scan(&data)
+	if err == sql.ErrNoRows {
+		return "", nil
+	}
+	if err != nil {
+		return "", err
+	}
+	return data, nil
+}
+
+func recordStandingsSnapshot(competition, season string, rows []StandingRow) error {
+	data, err := json.Marshal(rows)
+	if err != nil {
+		return err
+	}
+
+	latest, err := getLatestStandingsSnapshot(competition, season)
+	if err != nil {
+		return err
+	}
+	if latest == string(data) {
+		return nil
+	}
+
+	_, err = db.Exec(`
+		INSERT INTO standings_snapshots (competition, season, standings_json, recorded_at)
+		VALUES (?, ?, ?, ?)
+	`, competition, season, string(data), time.Now().UTC().Format(time.RFC3339))
+	return err
+}
+
+func getStandingsSnapshots(limit int) ([]StandingsSnapshotRow, error) {
+	rows, err := db.Query(`
+		SELECT competition, season, standings_json, recorded_at
+		FROM standings_snapshots
+		ORDER BY recorded_at DESC
+		LIMIT ?
+	`, limit)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	result := make([]StandingsSnapshotRow, 0)
+	for rows.Next() {
+		var comp, season, standingsJSON, recordedAt string
+		if err := rows.Scan(&comp, &season, &standingsJSON, &recordedAt); err != nil {
+			return nil, err
+		}
+		var parsed []StandingRow
+		if err := json.Unmarshal([]byte(standingsJSON), &parsed); err != nil {
+			log.Printf("warning: corrupt standings snapshot at %s: %v", recordedAt, err)
+			continue
+		}
+		result = append(result, StandingsSnapshotRow{
+			Competition: comp,
+			Season:      season,
+			RecordedAt:  recordedAt,
+			Standings:   parsed,
+		})
+	}
+	return result, rows.Err()
+}
+
+func standingsSnapshotsHandler(w http.ResponseWriter, r *http.Request) {
+	snapshots, err := getStandingsSnapshots(50)
+	if err != nil {
+		log.Printf("warning: failed to query standings snapshots: %v", err)
+		http.Error(w, "failed to load standings history", http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(snapshots)
 }

@@ -85,6 +85,10 @@ func fetchStandings(token string) error {
 	standings = fresh
 	standingsMu.Unlock()
 
+	if err := recordStandingsSnapshot(getStandingsCompetition(), getStandingsSeason(), fresh); err != nil {
+		log.Printf("warning: failed to record standings snapshot: %v", err)
+	}
+
 	log.Printf("fetched standings: %d team(s)", len(fresh))
 	hub.broadcast(map[string]interface{}{"event": "standings_updated"})
 	return nil

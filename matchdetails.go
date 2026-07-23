@@ -206,11 +206,16 @@ func fetchMatchGoals(token, matchId string) ([]Goal, error) {
 	}
 
 	if match.Status == "FINISHED" {
-		if err := setCachedGoals(matchId, goals); err != nil {
-			log.Printf("warning: failed to persist goals for %s: %v", matchId, err)
-		}
-		if err := recordGoalHistory(matchId, match.Competition, goals); err != nil {
-			log.Printf("warning: failed to record goal history for %s: %v", matchId, err)
+		expectedGoals := match.HomeScore + match.AwayScore
+		if len(goals) == 0 && expectedGoals > 0 {
+			log.Printf("warning: match %s scored %d-%d but returned zero goal events -- not caching, will retry next time", matchId, match.HomeScore, match.AwayScore)
+		} else {
+			if err := setCachedGoals(matchId, goals); err != nil {
+				log.Printf("warning: failed to persist goals for %s: %v", matchId, err)
+			}
+			if err := recordGoalHistory(matchId, match.Competition, goals); err != nil {
+				log.Printf("warning: failed to record goal history for %s: %v", matchId, err)
+			}
 		}
 	}
 
