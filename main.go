@@ -70,6 +70,7 @@ func main() {
 	mux.HandleFunc("GET /api/history/goals", goalHistoryHandler)
 	mux.HandleFunc("GET /api/history/standings", standingsSnapshotsHandler)
 	mux.HandleFunc("GET /api/players/topscorers", topScorersHandler)
+	mux.HandleFunc("GET /api/stats/season", seasonStatsHandler)
 	mux.HandleFunc("GET /ws", wsHandler)
 	mux.Handle("/", http.FileServer(http.Dir("static")))
 
